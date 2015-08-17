@@ -1,0 +1,11 @@
+int a,b,c
+par a,b
+a=1
+b=5 
+#b=3
+for i,a,b
+	c++ #continue comment
+	c++
+	#c++
+end
+return c
