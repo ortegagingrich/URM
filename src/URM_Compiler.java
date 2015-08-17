@@ -11,7 +11,6 @@ public class URM_Compiler {
 	
 	public static void main(String[] args) {
 		
-		
 		//set directory
 		//directory="F:\\Users\\JOG\\Documents\\U++\\";
 		
