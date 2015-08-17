@@ -24,3 +24,8 @@ run:
 .phony: clobber
 clobber:
 	rm $(BIN_FOLDER)/*.class
+
+#prepare the repository for publishing (i.e. committing)
+.phony: publish
+publish:
+	make clobber

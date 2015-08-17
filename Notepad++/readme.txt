@@ -1,0 +1,1 @@
+A small file containing information for syntax highlighting of U++ in Notepad++.  To use it, in Notepad++, under the "Language" drop down menu, select "Define your language."  Then select import and navigate to the included file "U++.udl".
