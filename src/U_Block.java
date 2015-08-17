@@ -40,6 +40,10 @@ public class U_Block extends U_Program {
 	}
 
 	public void parse_line(String line,ArrayList<String> lines){
+		//if line is empty, continue
+		if(line.length()==0){
+			return;
+		}
 		//get rid of leading whitespace
 		while(line.charAt(0)==' '||line.charAt(0)=='\t'){
 			line=line.substring(1);
@@ -58,9 +62,8 @@ public class U_Block extends U_Program {
 			line=line.substring(0,line.length()-1);
 		}
 		
-
 		//check for variable initialization:
-		if(line.contains("int")){
+		if(line.contains("int ")){
 			initiate_variable(line);
 		}
 		//checks for succession

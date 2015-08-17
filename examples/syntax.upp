@@ -1,4 +1,4 @@
-int a,b,c
+int a,b,c,d
 par a,b
 a=1
 b=5 
@@ -8,4 +8,5 @@ for i,a,b
 	c++
 	#c++
 end
-return c
+d=c
+return d

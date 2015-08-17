@@ -26,7 +26,11 @@ public class U_Function {
 		//first find initialized variables
 		ArrayList<String> newvars=new ArrayList<String>();
 		for(String line:newcode){
-			if(line.contains("int")){
+			if(line.contains("int ")&&!line.contains("#")){
+				//get rid of leading whitespace
+				while(line.charAt(0)==' '||line.charAt(0)=='\t'){
+					line=line.substring(1);
+				}
 				String[] vars=line.substring(4).split(",");
 				ArrayList<String> newnames=new ArrayList<String>();
 				for(String var:vars){

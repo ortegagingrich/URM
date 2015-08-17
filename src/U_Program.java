@@ -39,6 +39,10 @@ public class U_Program {
 	}
 
 	public void parse_line(String line,BufferedReader in){
+		//if line is empty, continue
+		if(line.length()==0){
+			return;
+		}
 		//get rid of leading whitespace
 		while(line.charAt(0)==' '||line.charAt(0)=='\t'){
 			line=line.substring(1);

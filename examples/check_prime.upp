@@ -1,0 +1,61 @@
+function add(var1,var2)
+	int xv,zero
+	xv=var1
+	zero=0
+	for i,zero,var2
+		xv++
+	end
+	return xv
+end
+
+
+function mult(var1,var2)
+	int xv,zero
+	xv=0
+	zero=0
+	for i,zero,var2
+		xv=add(xv,var1)
+	end
+	return xv
+end
+
+
+function divides?(var1,var2)
+	int xv,zero,prod
+	zero=0
+	xv=0
+	for i,zero,var2
+		prod=mult(i,var1)
+		if(prod==var2)
+			xv++
+		else
+		end
+	end
+	return xv
+end
+
+
+function prime?(var1)
+	int two,xv,check,one
+	one=1
+	two=2
+	xv=1
+	if(var1<two)
+		xv=0
+	else
+		for i,two,var1
+			check=divides?(i,var1)
+			if(check==one)
+				xv=0
+			else
+			end
+		end
+	end
+	return xv
+end
+
+
+int in,out
+par in
+out=prime?(in)
+return out
