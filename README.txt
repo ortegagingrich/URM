@@ -26,7 +26,7 @@ the commands Z, S and J is computationally equivalent to a Turing Machine.
 
 The following small example code computes the product of two input integers initially placed in registers 1 and 2.
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 1:J(1,3,9)
 2:Z(4)
 3:J(2,4,7)
@@ -36,7 +36,7 @@ The following small example code computes the product of two input integers init
 7:S(3)
 8:J(1,1,1)
 9:T(5,1)
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 Of course, it is impratical to write programs much larger than this, so typically proofs of the computability of certain functions (i.e. that 
 there exists a URM program that can compute it) is done by combining functions already known to be computable through substitution,
@@ -49,7 +49,7 @@ The U++ "compiler" contained in this repository is the result of this curiosity.
 language and turns it into URM Code.  It can be used to produce URM code easily for much more complicated functions.  For example,
 the U++ script
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 function add(var1,var2)
 	int xv,zero
 	xv=var1
@@ -109,11 +109,11 @@ int in,out
 par in
 out=prime?(in)
 return out
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 which determines if the given input is prime, compiles to generate the following URM code:
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 1:T(1,200001)
 2:T(200001,200003)
 3:Z(200007)
@@ -175,4 +175,4 @@ which determines if the given input is prime, compiles to generate the following
 59:T(200005,200002)
 60:T(200002,1)
 61:J(1,1,0)
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
