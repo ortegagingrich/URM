@@ -1,7 +1,10 @@
 import java.util.ArrayList;
+
 //class of blocks of code
 public class U_Block extends U_Program {
-
+	
+	//note: each block inherits from its parents a list of all variables within its scope (local and global)
+	
 	public U_Program parent;
 	public U_Variable output;
 	public ArrayList<U_Variable> local_variables;
@@ -21,10 +24,13 @@ public class U_Block extends U_Program {
 		output=o;
 		structure=s;
 		from_function=ff;
-		//transfer in parent variables
+		
+		//transfer in parent variables (local one layer up and global)
 		for(U_Variable var:parent.variables){
 			variables.add(var);
 		}
+		
+		//add in local variables
 		for(U_Variable var:local_variables){
 			variables.add(var);
 		}
@@ -61,6 +67,7 @@ public class U_Block extends U_Program {
 		while(line.charAt(line.length()-1)==' '||line.charAt(line.length()-1)=='\t'){
 			line=line.substring(0,line.length()-1);
 		}
+		
 		
 		//check for variable initialization:
 		if(line.contains("int ")){
@@ -283,6 +290,7 @@ public class U_Block extends U_Program {
 			}
 		}
 
+		//now, branch based on the type of if branch
 		if(line.contains("==")){
 			//finally get conditional variables
 			String[] parts=line.split("==");
@@ -292,7 +300,17 @@ public class U_Block extends U_Program {
 			v1=get_variable(name1);
 			v2=get_variable(name2);
 			//add if to command
-			commands.add(new U_If(v1,v2,lines1,lines2,parent));
+			commands.add(new U_If(v1,v2,lines1,lines2,this));
+		}else if(line.contains("!=")){
+			//same as equality, but with main and else blocks switched
+			String[] parts=line.split("!=");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_If(v1,v2,lines2,lines1,this));
 		}else if(line.contains("<")&&!line.contains("<=")){
 			//finally get conditional variables
 			String[] parts=line.split("<");
@@ -302,7 +320,7 @@ public class U_Block extends U_Program {
 			v1=get_variable(name1);
 			v2=get_variable(name2);
 			//add if to command
-			commands.add(new U_Ifless(v1,v2,lines1,lines2,parent));
+			commands.add(new U_Ifless(v1,v2,lines1,lines2,this));
 		}else if(line.contains("<=")){
 			//finally get conditional variables
 			String[] parts=line.split("<=");
@@ -312,7 +330,27 @@ public class U_Block extends U_Program {
 			v1=get_variable(name1);
 			v2=get_variable(name2);
 			//add if to command
-			commands.add(new U_Iflesseq(v1,v2,lines1,lines2,parent));
+			commands.add(new U_Iflesseq(v1,v2,lines1,lines2,this));
+		}else if(line.contains(">")&&!line.contains(">=")){
+			//same as not <, just with variables switched
+			String[] parts=line.split(">");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_Ifless(v2,v1,lines1,lines2,this));
+		}else if(line.contains(">=")){
+			//same as <=, just with variables switched
+			String[] parts=line.split(">=");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_Iflesseq(v2,v1,lines1,lines2,this));
 		}
 	}
 

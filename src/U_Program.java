@@ -130,21 +130,29 @@ public class U_Program {
 		U_Variable var=get_variable(name);
 		commands.add(new U_Succeed(var));
 	}
-
+	
+	//any operation which sets a variable value
 	public void assign_variable(String line){
 		String name1=line.split("=")[0];
 		U_Variable var1=get_variable(name1);
+		
+		//There are three possible types of operations
 		try{
+			//Type 1: Set variable as a constant integer
 			int t=Integer.parseInt(line.split("=")[1]);
 			commands.add(new U_Set(t,var1));
+			
 		}catch(Exception ex){
+			//if parsing the integer fails, clearly this is not a type 1 operation
 			String name2=line.split("=")[1];
+			
+			//try for Type 2: set one variable's value to anothers
 			U_Variable var2=get_variable(name2);
 
 			if(var2!=null){
 				commands.add(new U_Assignment(var2,var1));
 			}else{
-				//means that it is a function call
+				//Type 3: means that it is a function call
 				call_function(line);
 			}
 		}
@@ -179,7 +187,7 @@ public class U_Program {
 	}
 
 	public void make_for(String line){
-		//first determine the scope of the for loop
+		//first, read all lines inside of the loop structure (will turn this into a block)
 		ArrayList<String> lines=new ArrayList<String>();
 		int depth=1;
 		try{while(depth>0){
@@ -197,13 +205,20 @@ public class U_Program {
 			}
 			//check end
 		}}catch(Exception e){}
+		
 		//note: at this point lines contains all of the lines for the block inside the for loop
+		
 		//next split the line by commas
 		String[] parts=line.substring(4).split(",");
 		U_Variable u1,u2,u3;
-		u1=new U_Variable(parts[0]);//make new local variable, read in the rest
+		
+		//iterator variable; will be local
+		u1=new U_Variable(parts[0]);
+		
+		//program variables
 		u2=get_variable(parts[1]);
 		u3=get_variable(parts[2]);
+		
 		//add for loop to commands
 		commands.add(new U_For(u1,u2,u3,lines,this));
 	}
@@ -246,6 +261,7 @@ public class U_Program {
 	public void make_if(String line){
 		ArrayList<String> lines1=new ArrayList<String>();
 		int depth=1;
+		boolean include_else=false;
 		try{while(depth>0){
 			String newline=in.readLine();
 			for(String s:U_Compiler.control_structures){
@@ -258,29 +274,37 @@ public class U_Program {
 			}
 			if(newline.contains("else")&&depth==1){
 				depth=0;
+				include_else=true;
 			}
 			if(depth>0){
 				lines1.add(newline);
 			}
 			//check end
 		}}catch(Exception e){}
+		
 		//repeat for else block
 		ArrayList<String> lines2=new ArrayList<String>();
-		depth=1;
-		try{while(depth>0){
-			String newline=in.readLine();
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+		
+		//if there is an else block, read in those lines, otherwise leave empty
+		if(include_else){
+			depth=1;
+			try{while(depth>0){
+				String newline=in.readLine();
+				for(String s:U_Compiler.control_structures){
+					if(newline.contains(s)){
+						depth++;
+					}
 				}
-			}
-			if(newline.contains("end")){
-				depth--;
-			}
-			if(depth>0){
-				lines2.add(newline);
-			}
-		}}catch(Exception e){}
+				if(newline.contains("end")){
+					depth--;
+				}
+				if(depth>0){
+					lines2.add(newline);
+				}
+			}}catch(Exception e){}
+		}
+		
+		//now, branch based on the type of if branch
 		if(line.contains("==")){
 			//finally get conditional variables
 			String[] parts=line.split("==");
@@ -291,6 +315,16 @@ public class U_Program {
 			v2=get_variable(name2);
 			//add if to command
 			commands.add(new U_If(v1,v2,lines1,lines2,this));
+		}else if(line.contains("!=")){
+			//same as equality, but with main and else blocks switched
+			String[] parts=line.split("!=");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_If(v1,v2,lines2,lines1,this));
 		}else if(line.contains("<")&&!line.contains("<=")){
 			//finally get conditional variables
 			String[] parts=line.split("<");
@@ -311,6 +345,26 @@ public class U_Program {
 			v2=get_variable(name2);
 			//add if to command
 			commands.add(new U_Iflesseq(v1,v2,lines1,lines2,this));
+		}else if(line.contains(">")&&!line.contains(">=")){
+			//same as not <, just with variables switched
+			String[] parts=line.split(">");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_Ifless(v2,v1,lines1,lines2,this));
+		}else if(line.contains(">=")){
+			//same as <=, just with variables switched
+			String[] parts=line.split(">=");
+			String name1=parts[0].substring(3);
+			String name2=parts[1].substring(0,parts[1].length()-1);
+			U_Variable v1,v2;
+			v1=get_variable(name1);
+			v2=get_variable(name2);
+			//add if to command
+			commands.add(new U_Iflesseq(v2,v1,lines1,lines2,this));
 		}
 
 	}

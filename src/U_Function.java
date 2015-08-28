@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 
-//class of U++ functions note that block and local variables are really templates; a new one is made for each call
+//class of U++ functions note that block and local variables are really templates; a new instance is made for each call
 public class U_Function {
 	public String name;
 	public ArrayList<String> code;
 	public ArrayList<U_Variable> arguments;
-	public int instances;
+	public int instances; //the number of instances called so far
 	
 	
 	public U_Function(String n,ArrayList<String> args,ArrayList<String> lines){
@@ -23,25 +23,31 @@ public class U_Function {
 	public U_Block call(ArrayList<U_Variable> argument_vars,U_Program par,U_Variable output){
 		ArrayList<String> newcode=(ArrayList<String>)code.clone();
 		
-		//first find initialized variables
+		//list to contain variables declared inside of the function
 		ArrayList<String> newvars=new ArrayList<String>();
+		
+		//find variable declarations their names to the list
 		for(String line:newcode){
 			if(line.contains("int ")&&!line.contains("#")){
 				//get rid of leading whitespace
 				while(line.charAt(0)==' '||line.charAt(0)=='\t'){
 					line=line.substring(1);
 				}
+				
+				//add variables declared on the line
 				String[] vars=line.substring(4).split(",");
-				ArrayList<String> newnames=new ArrayList<String>();
 				for(String var:vars){
 					String newname=name+"%"+instances+"%"+var;
 					par.variables.add(new U_Variable(newname));
-					newnames.add(newname);
+					
 					newvars.add(newname);
 				}
 			}
 		}
 		
+		//replace variable names with new versions
+		//DANGEROUS!!! What if one variable identifier is a substring of another!?!
+		//TODO: Replace this crazy system (what was I thinking?) with something more akin to Fortran's memory allocation.
 		for(int i=0;i<newcode.size();i++){
 			//get line
 			String line=newcode.get(i);

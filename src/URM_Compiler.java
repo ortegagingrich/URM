@@ -44,8 +44,13 @@ public class URM_Compiler {
 		File inputFile=loadFile();
 		directory=inputFile.getParent();
 		
+		//read in file to create a U++ program object
 		U_Program u=new U_Program(inputFile.getAbsolutePath());
+		
+		//convert into a URM program
 		URM_Program q=ucomp.compile(u);
+		
+		//output the result
 		System.out.println(q);
 		q.print(directory+"//u.out");
 	}
