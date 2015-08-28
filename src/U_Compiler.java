@@ -96,7 +96,6 @@ public class U_Compiler {
 			localenv++;
 			int i=0;
 			for(U_Variable var:block.local_variables){
-				//System.out.println(block.local_variables);
 				var.index=block.local_index+i;
 				i++;
 			}
@@ -122,7 +121,17 @@ public class U_Compiler {
 			cumline+=2;
 		}
 		if(command instanceof U_While){
-			//no local variables, so don't worry about that
+			//first allocate registers for local variables
+			U_Block block=((U_While)command).block;
+			block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			int i=0;
+			for(U_Variable var:block.local_variables){
+				var.index=block.local_index+i;
+				i++;
+			}
+			
+			//preamble
 			int left=((U_While)command).left.index;
 			int right=((U_While)command).right.index;
 			
@@ -130,7 +139,7 @@ public class U_Compiler {
 			p.add_jump_tentative(left,right);
 			cumline++;
 			//add main block
-			for(U_Command com:((U_While)command).block.commands){
+			for(U_Command com:block.commands){
 				add_code(com,p);
 			}
 			//finish
@@ -139,8 +148,30 @@ public class U_Compiler {
 			p.add_command("J",1,1,m);
 			cumline++;
 		}
+		
 		if(command instanceof U_If){
-			//no local variables, so don't worry about that
+			//first allocate registers for local variables
+			//main block
+			U_Block main_block=((U_If)command).main_block;
+			main_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			int i=0;
+			for(U_Variable var:main_block.local_variables){
+				var.index=main_block.local_index+i;
+				i++;
+			}
+			//else block
+			U_Block else_block=((U_If)command).else_block;
+			else_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			i=0;
+			for(U_Variable var:else_block.local_variables){
+				var.index=else_block.local_index+i;
+				i++;
+			}
+			
+			
+			//preamble
 			int left=((U_If)command).left.index;
 			int right=((U_If)command).right.index;
 			
@@ -149,7 +180,7 @@ public class U_Compiler {
 			p.add_jump_tentative(1,1);
 			cumline+=2;
 			//add main block
-			for(U_Command com:((U_If)command).main_block.commands){
+			for(U_Command com:main_block.commands){
 				add_code(com,p);
 			}
 			int m=cumline;
@@ -157,14 +188,34 @@ public class U_Compiler {
 			p.add_jump_tentative(1,1);
 			cumline++;
 			//add else block
-			for(U_Command com:((U_If)command).else_block.commands){
+			for(U_Command com:else_block.commands){
 				add_code(com,p);
 			}
 			int k=cumline;
 			p.finalize_jump(m,k);
 		}
 		if(command instanceof U_Ifless){
-			//no local variables, so don't worry about that
+			//first allocate registers for local variables
+			//main block
+			U_Block main_block=((U_Ifless)command).main_block;
+			main_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			int i=0;
+			for(U_Variable var:main_block.local_variables){
+				var.index=main_block.local_index+i;
+				i++;
+			}
+			//else block
+			U_Block else_block=((U_Ifless)command).else_block;
+			else_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			i=0;
+			for(U_Variable var:else_block.local_variables){
+				var.index=else_block.local_index+i;
+				i++;
+			}
+			
+			//preamble
 			int left=((U_Ifless)command).left.index;
 			int right=((U_Ifless)command).right.index;
 			
@@ -178,7 +229,7 @@ public class U_Compiler {
 			p.add_command("J",1,1,n+2);
 			cumline+=7;
 			//add main block
-			for(U_Command com:((U_Ifless)command).main_block.commands){
+			for(U_Command com:main_block.commands){
 				add_code(com,p);
 			}
 			int m=cumline;
@@ -186,13 +237,34 @@ public class U_Compiler {
 			p.add_jump_tentative(1,1);
 			cumline++;
 			//add else block
-			for(U_Command com:((U_Ifless)command).else_block.commands){
+			for(U_Command com:else_block.commands){
 				add_code(com,p);
 			}
 			int k=cumline;
 			p.finalize_jump(m,k);
 		}
 		if(command instanceof U_Iflesseq){
+			//first allocate registers for local variables
+			//main block
+			U_Block main_block=((U_Iflesseq)command).main_block;
+			main_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			int i=0;
+			for(U_Variable var:main_block.local_variables){
+				var.index=main_block.local_index+i;
+				i++;
+			}
+			//else block
+			U_Block else_block=((U_Iflesseq)command).else_block;
+			else_block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			i=0;
+			for(U_Variable var:else_block.local_variables){
+				var.index=else_block.local_index+i;
+				i++;
+			}
+			
+			//preamble
 			int left=((U_Iflesseq)command).left.index;
 			int right=((U_Iflesseq)command).right.index;
 			

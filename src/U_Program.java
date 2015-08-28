@@ -162,6 +162,7 @@ public class U_Program {
 		//first identify the appropriate function
 		String name=line.split("\\(")[0].split("=")[1];
 		U_Function function=get_function(name);
+		
 		//next make appropriate global variables
 		ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
 		for(U_Variable var:function.arguments){
@@ -170,14 +171,17 @@ public class U_Program {
 			variables.add(newvar);
 			locals.add(newvar);
 		}
+		
 		//get inputs
 		String[] args=line.split("\\(")[1].substring(0,line.split("\\(")[1].length()-1).split(",");
 		ArrayList<U_Variable> inputs=new ArrayList<U_Variable>();
 		for(String arg:args){
 			inputs.add(get_variable(arg));
 		}
+		
 		//get output
 		U_Variable output=get_variable(line.split("=")[0]);
+		
 		//get specific code block
 		U_Block block=function.call(locals,this,output);
 
