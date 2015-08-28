@@ -71,6 +71,9 @@ public class U_Function {
 			}
 		}
 		
+		//increment the number of instances generated so far (clumsy, but works)
+		instances++;
+		
 		//System.out.println(newcode);
 		//System.out.println(par.variables.size());
 		U_Block r= new U_Block(newcode,par,new ArrayList<U_Variable>(),output,this,true);

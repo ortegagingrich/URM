@@ -130,7 +130,10 @@ public class U_Block extends U_Program {
 		}
 		//get output
 		U_Variable output=get_variable(line.split("=")[0]);
+		
 		//get specific code block
+		//note: for function calls, the root program is given as the parent rather than this
+		//This is because we do not want any local variables accessible inside the function
 		U_Block block=function.call(locals,parent,output);
 
 		commands.add(new U_Call(block,inputs,output,locals));
@@ -182,7 +185,7 @@ public class U_Block extends U_Program {
 		u2=get_variable(parts[1]);
 		u3=get_variable(parts[2]);
 		//add for loop to commands
-		commands.add(new U_For(u1,u2,u3,lines,parent));
+		commands.add(new U_For(u1,u2,u3,lines,this));
 	}
 
 	public void make_while(String line,ArrayList<String> biglines){
@@ -226,7 +229,7 @@ public class U_Block extends U_Program {
 			v1=get_variable(name1);
 			v2=get_variable(name2);
 			//next add while command
-			commands.add(new U_While(v1,v2,lines1,parent));
+			commands.add(new U_While(v1,v2,lines1,this));
 		}
 	}
 

@@ -182,8 +182,6 @@ public class U_Program {
 		U_Block block=function.call(locals,this,output);
 
 		commands.add(new U_Call(block,inputs,output,locals));
-
-		function.instances++;
 	}
 
 	public void make_for(String line){
@@ -370,7 +368,7 @@ public class U_Program {
 	}
 
 	public void make_function(String line){
-		//first determine the scope of the function
+		//first, read in all lines containing the function's code
 		ArrayList<String> lines=new ArrayList<String>();
 		int depth=1;
 		try{while(depth>0){
@@ -388,11 +386,13 @@ public class U_Program {
 			}
 			//check end
 		}}catch(Exception e){}
+		
 		//next get the name of the function
 		String[] rest=line.split("\\(");
 		String name=rest[0].substring(9);
 		//next get the argument names
 		String[] args=rest[1].substring(0,rest[1].length()-1).split(",");
+		
 		//make function object
 		functions.add(new U_Function(name,new ArrayList<String>(Arrays.asList(args)),lines));
 	}
