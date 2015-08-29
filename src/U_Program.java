@@ -164,13 +164,13 @@ public class U_Program {
 		U_Function function=get_function(name);
 		
 		//next make appropriate global variables
-		ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
+		/*ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
 		for(U_Variable var:function.arguments){
 			String newname=function.name+"%"+function.instances+"%"+var.identifier;
 			U_Variable newvar=new U_Variable(newname);
 			variables.add(newvar);
 			locals.add(newvar);
-		}
+		}*/
 		
 		//get inputs
 		String[] args=line.split("\\(")[1].substring(0,line.split("\\(")[1].length()-1).split(",");
@@ -183,9 +183,9 @@ public class U_Program {
 		U_Variable output=get_variable(line.split("=")[0]);
 		
 		//get specific code block
-		U_Block block=function.call(locals,this,output);
+		U_Block block=function.call(this,output);
 
-		commands.add(new U_Call(block,inputs,output,locals));
+		commands.add(new U_Call(block,inputs,output,function.arguments));
 	}
 
 	public void make_for(String line){

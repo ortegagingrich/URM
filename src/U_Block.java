@@ -2,9 +2,9 @@ import java.util.ArrayList;
 
 //class of blocks of code
 public class U_Block extends U_Program {
-	
+
 	//note: each block inherits from its parents a list of all variables within its scope (local and global)
-	
+
 	public U_Program parent;
 	public U_Variable output;
 	public ArrayList<U_Variable> local_variables;
@@ -13,7 +13,8 @@ public class U_Block extends U_Program {
 	public boolean from_function;
 
 	private int index;
-
+	
+	//Very important note: the array of strings 'lines' is modified, so to be safe, a clone should be fed in.
 	public U_Block(ArrayList<String> lines,U_Program par,ArrayList<U_Variable> locals,U_Variable o,Object s,boolean ff){
 		super();
 		local_variables=locals;
@@ -24,12 +25,16 @@ public class U_Block extends U_Program {
 		output=o;
 		structure=s;
 		from_function=ff;
-		
-		//transfer in parent variables (local one layer up and global)
-		for(U_Variable var:parent.variables){
-			variables.add(var);
+
+		//unless a function call block, transfer in parent variables (local one layer up)
+		if(!from_function){
+			//note that this is the reason function's cannot access "global" variables
+			for(U_Variable var:parent.variables){
+				variables.add(var);
+			}
 		}
 		
+
 		//add in local variables
 		for(U_Variable var:local_variables){
 			variables.add(var);
@@ -67,8 +72,8 @@ public class U_Block extends U_Program {
 		while(line.charAt(line.length()-1)==' '||line.charAt(line.length()-1)=='\t'){
 			line=line.substring(0,line.length()-1);
 		}
-		
-		
+
+
 		//check for variable initialization:
 		if(line.contains("int ")){
 			initiate_variable(line);
@@ -114,31 +119,23 @@ public class U_Block extends U_Program {
 		//first identify the appropriate function
 		String name=line.split("\\(")[0].split("=")[1];
 		U_Function function=parent.get_function(name);
-		//next make appropriate global variables
-		ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
-		for(U_Variable var:function.arguments){
-			String newname=function.name+"%"+function.instances+"%"+var.identifier;
-			U_Variable newvar=new U_Variable(newname);
-			parent.variables.add(newvar);
-			locals.add(newvar);
-		}
+
 		//get inputs
 		String[] args=line.split("\\(")[1].substring(0,line.split("\\(")[1].length()-1).split(",");
 		ArrayList<U_Variable> inputs=new ArrayList<U_Variable>();
 		for(String arg:args){
 			inputs.add(get_variable(arg));
 		}
+
 		//get output
 		U_Variable output=get_variable(line.split("=")[0]);
-		
+
 		//get specific code block
 		//note: for function calls, the root program is given as the parent rather than this
 		//This is because we do not want any local variables accessible inside the function
-		U_Block block=function.call(locals,parent,output);
+		U_Block block=function.call(parent,output);
 
-		commands.add(new U_Call(block,inputs,output,locals));
-
-		function.instances++;
+		commands.add(new U_Call(block,inputs,output,function.arguments));
 	}
 
 	//doesn't actually end program, just makes transfer
@@ -170,7 +167,7 @@ public class U_Block extends U_Program {
 			}
 			//increase index
 			forindex++;
-		}}catch(Exception e){e.printStackTrace();}
+		}}catch(Exception e){e.printStackTrace();System.out.println(biglines.toString());System.exit(0);}
 		//remove unwanted elements of biglines
 		for(int i=biglines.size()-1;i>-1;i--){
 			if(toremove.contains(i)){
@@ -212,7 +209,7 @@ public class U_Block extends U_Program {
 			}
 			//increase index
 			forindex++;
-		}}catch(Exception e){e.printStackTrace();}
+		}}catch(Exception e){e.printStackTrace();System.out.println(biglines.toString());System.exit(0);}
 		//remove unwanted elements of biglines
 		for(int i=biglines.size()-1;i>-1;i--){
 			if(toremove.contains(i)){
@@ -257,7 +254,7 @@ public class U_Block extends U_Program {
 			}
 			//increase index
 			forindex++;
-		}}catch(Exception e){e.printStackTrace();}
+		}}catch(Exception e){e.printStackTrace();System.out.println(biglines.toString());System.exit(0);}
 		//remove unwanted elements of biglines
 		for(int i=biglines.size()-1;i>-1;i--){
 			if(toremove.contains(i)){
@@ -285,7 +282,7 @@ public class U_Block extends U_Program {
 			}
 			//increase index
 			forindex++;
-		}}catch(Exception e){e.printStackTrace();}
+		}}catch(Exception e){e.printStackTrace();System.out.println(biglines.toString());System.exit(0);}
 		//remove unwanted elements of biglines
 		for(int i=biglines.size()-1;i>-1;i--){
 			if(toremove.contains(i)){

@@ -26,6 +26,13 @@ public class U_Compiler {
 				var.index=200001+i;//experimental change
 			}
 		}
+		
+		
+		//TEMPORARY: WHEN WE ARE DONE, THERE SHOULD ONLY BE A FEW LISTED HERE
+		System.out.println(program.variables.toString());
+		
+		
+		
 		//add commands from program
 		cumline=1;//cumulative number of URM lines used; at any given step cumline is the current line also.
 		localenv=0;//current environment number for local variables
@@ -76,6 +83,16 @@ public class U_Compiler {
 		}
 		//good luck
 		if(command instanceof U_Call){
+			//first take care of the local variables
+			U_Block block=((U_Call)command).block;
+			block.local_index=15000+(100*localenv);//test change
+			localenv++;
+			int istupid=0;
+			for(U_Variable var:block.local_variables){
+				var.index=block.local_index+istupid;
+				istupid++;
+			}
+			
 			//first transfer in inputs
 			ArrayList<U_Variable> inputs=((U_Call)command).inputs;
 			ArrayList<U_Variable> args=((U_Call)command).arguments;
@@ -84,7 +101,6 @@ public class U_Compiler {
 				cumline++;
 			}
 			//next read in main block
-			U_Block block=((U_Call)command).block;
 			for(U_Command com:block.commands){
 				add_code(com,p);
 			}

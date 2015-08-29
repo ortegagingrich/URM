@@ -1,0 +1,348 @@
+function succ(var1)
+	int xv
+	xv=var1
+	xv++
+	return xv
+end
+
+
+function add(var1,var2)
+	int xv,zero
+	xv=var1
+	zero=0
+	for i,zero,var2
+		xv=succ(xv)
+	end
+	return xv
+end
+
+
+function subtract(var1,var2)
+	int xv,zero,stest,ttest
+	zero=0
+	stest=var2
+	ttest=0
+	while(stest!=var1)
+		ttest++
+		stest=add(var2,ttest)
+	end
+	return ttest
+end
+
+
+function mult(var1,var2)
+	int xv,zero
+	xv=0
+	zero=0
+	for i,zero,var2
+		xv=add(xv,var1)
+	end
+	return xv
+end
+
+
+function divide(var1,var2)
+	int xv,one,ptest,ttest
+	one=1
+	ptest=0
+	ttest=0
+	while(ptest!=var1)
+		ttest++
+		ptest=add(ptest,var2)
+	end
+	return ttest
+end
+
+
+function pow(var1,var2)
+	int xv,zero
+	zero=0
+	xv=1
+	for i,zero,var2
+		xv=mult(xv,var1)
+	end
+	return xv
+end
+
+function divides?(var1,var2)
+	int xv,zero,prod
+	zero=0
+	xv=0
+	for i,zero,var2
+		prod=mult(i,var1)
+		if(prod==var2)
+			xv++
+		else
+		end
+	end
+	return xv
+end
+
+function prime?(var1)
+	int two,xv,check,one
+	one=1
+	two=2
+	xv=1
+	if(var1<two)
+		xv=0
+	else
+		for i,two,var1
+			check=divides?(i,var1)
+			if(check==one)
+				xv=0
+			else
+			end
+		end
+	end
+	return xv
+end
+
+function prime(var1)
+	int iter,mtest,one,ptest,zero,count
+	iter=1
+	mtest=0
+	one=1
+	zero=0
+	ptest=prime?(var1)
+	count=0
+	while(mtest!=one)
+		iter++
+		ptest=prime?(iter)
+		if(ptest==one)
+			count++
+		else
+		end
+		if(count==var1)
+			mtest=1
+		else
+		end
+	end
+	return iter
+end
+
+function primepow(var1,var2)
+	int base,ptest,divtest,zero,iter,xv,one
+	zero=0
+	one=1
+	base=prime(var2)
+	ptest=0
+	divtest=1
+	iter=0
+	while(divtest!=zero)
+		iter++
+		ptest=pow(base,iter)
+		divtest=divides?(ptest,var1)
+	end
+	xv=subtract(iter,one)
+	return xv
+end
+
+
+
+
+function univ_w0(xin,yin)
+	int xv,tpowx,tpowy,rpow,two,three
+	two=2
+	three=3
+	xv=5
+	tpowx=pow(two,xin)
+	tpowy=pow(two,yin)
+	rpow=pow(three,tpowy)
+	xv=mult(xv,tpowx)
+	xv=mult(xv,rpow)
+	return xv
+end
+
+function univ_q(win)
+	int xv,one
+	one=1
+	xv=primepow(win,one)
+	return xv
+end
+
+function univ_alpha(win)
+	int step1,step2,step3,one,three,zero
+	zero=0
+	one=1
+	three=3
+	step1=primepow(win,one)
+	step2=primepow(win,three)
+	if(step2==zero)
+		step3=0
+	else
+		step3=primepow(step1,step2)
+	end
+	return step3
+end
+
+function univ_r(win)
+	int alphaw,alphatest,finishtest,zero,one,two,three,four,xv,numerator,denominator,curp,p1,p2
+	zero=0
+	one=1
+	two=2
+	three=3
+	four=4
+	alphaw=univ_alpha(win)
+	alphatest=primepow(alphaw,one)
+	finishtest=primepow(win,three)
+	if(finishtest==zero)
+		xv=primepow(win,two)
+	else
+		if(alphatest==zero)
+			xv=primepow(win,two)
+		else
+		end
+		if(alphatest==one)
+			xv=primepow(win,two)
+		else
+		end
+		if(alphatest==two)
+			numerator=primepow(win,two)
+			curp=primepow(alphaw,two)
+			curp=prime(curp)
+			numerator=mult(curp,numerator)
+			xv=numerator
+		else
+		end
+		if(alphatest==three)
+			numerator=primepow(win,two)
+			denominator=primepow(alphaw,three)
+			denominator=prime(denominator)
+			p1=numerator
+			p2=primepow(alphaw,three)
+			p1=primepow(numerator,p2)
+			denominator=pow(denominator,p1)
+			xv=divide(numerator,denominator)
+			p1=numerator
+			p2=primepow(alphaw,two)
+			p1=primepow(numerator,p2)
+			curp=primepow(alphaw,three)
+			curp=prime(curp)
+			curp=pow(curp,p1)
+			xv=mult(xv,curp)
+		else
+		end
+		if(alphatest==four)
+			numerator=primepow(win,two)
+			denominator=primepow(alphaw,two)
+			denominator=prime(denominator)
+			p1=numerator
+			p2=primepow(alphaw,two)
+			p1=primepow(numerator,p2)
+			denominator=pow(denominator,p1)
+			xv=divide(numerator,denominator)
+		else
+		end
+	end
+	return xv
+end
+
+
+function univ_i(win)
+	int zero,one,two,three,four,alphaw,xv,wtest,alphatest,left,right,alpha3,alpha2
+	zero=0
+	one=1
+	two=2
+	three=3
+	four=4
+	xv=0
+	alphaw=univ_alpha(win)
+	alphatest=primepow(alphaw,one)
+	wtest=primepow(win,three)
+	if(wtest==zero)
+		xv=0
+	else
+		if(alphatest==zero)
+			xv=0
+		else
+		end
+		if(alphatest==one)
+			alpha3=primepow(alphaw,three)
+			alpha2=primepow(alphaw,two)
+			left=primepow(win,two)
+			left=primepow(left,alpha2)
+			right=primepow(win,two)
+			right=primepow(right,alpha3)
+			if(left==right)
+				xv=primepow(alphaw,four)
+			else
+				xv=add(wtest,one)
+			end
+		else
+		end
+		if(alphatest==two)
+			xv=add(wtest,one)
+		else
+		end
+		if(alphatest==three)
+			xv=add(wtest,one)
+		else
+		end
+		if(alphatest==four)
+			xv=add(wtest,one)
+		else
+		end
+	end
+	return xv
+end
+
+
+function univ_d(win)
+	int two,three,five,p2,p3,p5,xv
+	two=2
+	three=3
+	five=5
+	p2=univ_q(win)
+	p2=pow(two,p2)
+	p3=univ_r(win)
+	p3=pow(three,p3)
+	p5=univ_i(win)
+	p5=pow(five,p5)
+	xv=mult(p2,p3)
+	xv=mult(xv,p5)
+	return xv
+end
+
+
+function univ_wn(xin,yin,tin)
+	int xv,zero
+	xv=univ_w0(xin,yin)
+	for i,zero,tin
+		xv=univ_d(xv)
+	end
+	return xv
+end
+
+
+function univ_e(xin,yin)
+	int xv,zero,three,entest,wtry
+	zero=0
+	three=3
+	wtry=univ_wn(xin,yin,zero)
+	entest=primepow(wtry,three)
+	xv=0
+	while(entest!=zero)
+		xv++
+		wtry=univ_wn(xin,yin,xv)
+		entest=primepow(wtry,three)
+	end
+	return xv
+end
+
+
+function univ_f(xin,yin)
+	int xv,one,two
+	one=1
+	two=2
+	xv=univ_e(xin,yin)
+	xv=univ_wn(xin,yin,xv)
+	xv=primepow(xv,two)
+	xv=primepow(xv,one)
+	return xv
+end
+
+int a,b,c
+par a,b
+#c=univ_f(a,b)
+c=prime?(a)
+return c

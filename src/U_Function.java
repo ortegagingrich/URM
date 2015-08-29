@@ -7,7 +7,6 @@ public class U_Function {
 	public ArrayList<U_Variable> arguments;
 	public int instances; //the number of instances called so far
 	
-	
 	public U_Function(String n,ArrayList<String> args,ArrayList<String> lines){
 		instances=0;
 		name=n;
@@ -17,11 +16,27 @@ public class U_Function {
 			arguments.add(newvar);
 		}
 		code=lines;
-		
 	}
 	
-	public U_Block call(ArrayList<U_Variable> argument_vars,U_Program par,U_Variable output){
+	
+	//Note: par must truly be the parent program, not just one level up; this is for variable scope
+	public U_Block call(U_Program par,U_Variable output){
+		
+		//New idea: just make a block; add argument local variables, let the block handle the rest
+		ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
+		locals.addAll(arguments);
+		
+		//make deep copy of code array
 		ArrayList<String> newcode=(ArrayList<String>)code.clone();
+		
+		U_Block block=new U_Block(newcode,par,locals,output,this,true);
+		
+		
+		return block;
+		
+		
+		/*
+		//ArrayList<String> newcode=(ArrayList<String>)code.clone();
 		
 		//list to contain variables declared inside of the function
 		ArrayList<String> newvars=new ArrayList<String>();
@@ -78,6 +93,7 @@ public class U_Function {
 		//System.out.println(par.variables.size());
 		U_Block r= new U_Block(newcode,par,new ArrayList<U_Variable>(),output,this,true);
 		return r;
+		*/
 	}
 
 }
