@@ -8,6 +8,10 @@ public class U_Compiler {
 	public int cumline;
 	public int localenv;
 	
+	//memory manager
+	private Memory_Manager mm;
+	
+	
 	public U_Compiler(){
 		String[] a={"for","while","if"};
 		control_structures=new ArrayList<String>(Arrays.asList(a));
@@ -17,20 +21,22 @@ public class U_Compiler {
 		//make URM program for eventual output
 		URM_Program p=new URM_Program();
 		
-		//first, dedicate appropriate registers for global variables
+		
+		//create memory manager for this program
+		mm=new Memory_Manager(program.nargin);
+		
+		//allocate registers to top level (not quite global) variables - these are never released
 		for(int i=0;i<program.variables.size();i++){
 			U_Variable var=program.variables.get(i);
+			var.index=mm.malloc();
+			/*
 			if(var.identifier.contains("tracker")){
 				var.index=9999;
 			}else{
 				var.index=200001+i;//experimental change
 			}
+			*/
 		}
-		
-		
-		//TEMPORARY: WHEN WE ARE DONE, THERE SHOULD ONLY BE A FEW LISTED HERE
-		System.out.println(program.variables.toString());
-		
 		
 		
 		//add commands from program
@@ -135,6 +141,9 @@ public class U_Compiler {
 			p.add_command("S",i);
 			p.add_command("J",1,1,n+1);
 			cumline+=2;
+			
+			//TODO: Release local variables back to the system
+			
 		}
 		if(command instanceof U_While){
 			//first allocate registers for local variables
@@ -235,15 +244,25 @@ public class U_Compiler {
 			int left=((U_Ifless)command).left.index;
 			int right=((U_Ifless)command).right.index;
 			
+			//get registers for scratch work
+			int scratchz=mm.malloc();
+			int scratcho=mm.malloc();
+			
 			int n=cumline;
-			p.add_command("T",left,100);
-			p.add_command("T",right,101);
-			p.add_jump_tentative(101,left);
-			p.add_command("S",100);
-			p.add_command("S",101);
-			p.add_command("J",100,right,n+7);
+			p.add_command("T",left,scratchz);
+			p.add_command("T",right,scratcho);
+			p.add_jump_tentative(scratcho,left);
+			p.add_command("S",scratchz);
+			p.add_command("S",scratcho);
+			p.add_command("J",scratchz,right,n+7);
 			p.add_command("J",1,1,n+2);
 			cumline+=7;
+			
+			//release preamble scratch registers
+			mm.free(scratchz);
+			mm.free(scratcho);
+			
+			
 			//add main block
 			for(U_Command com:main_block.commands){
 				add_code(com,p);
@@ -284,15 +303,25 @@ public class U_Compiler {
 			int left=((U_Iflesseq)command).left.index;
 			int right=((U_Iflesseq)command).right.index;
 			
+			//get registers for scratch work
+			int scratchz=mm.malloc();
+			int scratcho=mm.malloc();
+			
 			int n=cumline;
-			p.add_command("T",left,100);
-			p.add_command("T",right,101);
-			p.add_command("J",100,right,n+7);
-			p.add_command("S",100);
-			p.add_command("S",101);
-			p.add_jump_tentative(101,left);
+			p.add_command("T",left,scratchz);
+			p.add_command("T",right,scratcho);
+			p.add_command("J",scratchz,right,n+7);
+			p.add_command("S",scratchz);
+			p.add_command("S",scratcho);
+			p.add_jump_tentative(scratcho,left);
 			p.add_command("J",1,1,n+2);
 			cumline+=7;
+			
+			//release preamble scratch registers
+			mm.free(scratchz);
+			mm.free(scratcho);
+			
+			//now add main block
 			for(U_Command com:((U_Iflesseq)command).main_block.commands){
 				add_code(com,p);
 			}
@@ -300,6 +329,7 @@ public class U_Compiler {
 			p.finalize_jump(n+5,m+1);
 			p.add_jump_tentative(1,1);
 			cumline++;
+			
 			//add else block
 			for(U_Command com:((U_Iflesseq)command).else_block.commands){
 				add_code(com,p);

@@ -9,6 +9,11 @@ public class U_Program {
 	public ArrayList<U_Function> functions;
 	public ArrayList<U_Command> commands;
 	public BufferedReader in;
+	
+	//number of input (determined by the total number of parameters listed in par command)
+	public int nargin;
+	
+	
 
 	public U_Program(){
 
@@ -115,6 +120,11 @@ public class U_Program {
 		for(String n:vars){
 			v.add(get_variable(n));
 		}
+		
+		//set number of input registers
+		nargin=vars.length;
+		
+		//place tranfer command
 		commands.add(new U_Parameter(v));
 	}
 
