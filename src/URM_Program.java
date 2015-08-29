@@ -52,7 +52,7 @@ public class URM_Program {
 		try{
 			FileWriter ryt=new FileWriter(dir);
 			BufferedWriter out=new BufferedWriter(ryt);
-			ArrayList<URM_Command> coms=(ArrayList<URM_Command>)commands.clone();
+			ArrayList<URM_Command> coms=new ArrayList<URM_Command>(commands);
 			coms.remove(null);
 			for(URM_Command line:coms){
 				String s=line.line_number+":"+line.type+"(";
