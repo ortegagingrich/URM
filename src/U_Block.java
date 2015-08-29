@@ -132,6 +132,7 @@ public class U_Block extends U_Program {
 
 	public void initiate_variable(String line){
 		String rest=line.substring(4,line.length());
+		rest=remove_whitespace(rest);
 		String[] vars=rest.split(",");
 		for(String var:vars){
 			U_Variable newvar=new U_Variable(var);
@@ -143,6 +144,9 @@ public class U_Block extends U_Program {
 	
 	//any operation which sets a variable value
 	public void assign_variable(String line){
+		//remove whitespace
+		line=remove_whitespace(line);
+		
 		String name1=line.split("=")[0];
 		U_Variable var1=get_variable(name1);
 
@@ -496,6 +500,8 @@ public class U_Block extends U_Program {
 	}
 	
 	private U_Variable get_variable(String name){
+		name=remove_whitespace(name);
+		
 		for(U_Variable var:variables){
 			if(var.identifier.equals(name)){
 				return var;

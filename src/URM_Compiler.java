@@ -14,14 +14,14 @@ public class URM_Compiler {
 		//set directory
 		//directory="F:\\Users\\JOG\\Documents\\U++\\";
 		
-		System.out.println("Hello U++");
-		//make URM
-		urm=new URM();
+		System.out.println("Please select a U++ file to compile.");
+		
 		//make compiler
 		ucomp=new U_Compiler();
 		
 		/*
 		//make sample program
+		urm=new URM();
 		URM_Program p=new URM_Program();
 		p.add_command("T",1,2);
 		for(int i=1;i<=5;i++){
@@ -51,7 +51,6 @@ public class URM_Compiler {
 		URM_Program q=ucomp.compile(u);
 		
 		//output the result
-		System.out.println(q);
 		q.print(directory+"//u.out");
 	}
 	

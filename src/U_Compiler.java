@@ -34,7 +34,10 @@ public class U_Compiler {
 			add_code(command,p);
 		}
 		
-		
+		System.out.println("Finished compiling URM program");
+		System.out.println("The compiled program can be found in "+URM_Compiler.directory+"\\u.out");
+		System.out.println("Number of URM lines: "+Integer.toString(p.length()));
+		System.out.println("Number of Registers used: "+Integer.toString(mm.maxregister));
 		
 		return p;
 	}

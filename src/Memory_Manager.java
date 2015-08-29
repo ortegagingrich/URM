@@ -7,6 +7,8 @@ public class Memory_Manager {
 	private ArrayList<Integer> allocated; //registers which have been allocated
 	private ArrayList<Integer> released; //registers which have been released
 	
+	public int maxregister=1;
+	
 	public Memory_Manager(int nargs){
 		reserved=nargs;
 		allocated=new ArrayList<Integer>();
@@ -26,6 +28,8 @@ public class Memory_Manager {
 		//otherwise, get the next largest
 		int next=reserved+allocated.size()+1;
 		allocated.add(next);
+		
+		maxregister=next;
 		return next;
 	}
 	

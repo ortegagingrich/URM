@@ -131,6 +131,7 @@ public class U_Program {
 
 	public void initiate_variable(String line){
 		String rest=line.substring(4,line.length());
+		rest=remove_whitespace(rest);
 		String[] vars=rest.split(",");
 		for(String var:vars){
 			variables.add(new U_Variable(var));
@@ -167,6 +168,9 @@ public class U_Program {
 	
 	//any operation which sets a variable value
 	public void assign_variable(String line){
+		//remove whitespace
+		line=remove_whitespace(line);
+		
 		String name1=line.split("=")[0];
 		U_Variable var1=get_variable(name1);
 		
@@ -537,10 +541,13 @@ public class U_Program {
 		}}catch(Exception e){}
 		
 		//next get the name of the function
-		String[] rest=line.split("\\(");
-		String name=rest[0].substring(9);
+		
+		String rest=line.substring(9);
+		rest=remove_whitespace(rest);
+		String[] parts=rest.split("\\(");
+		String name=parts[0];
 		//next get the argument names
-		String[] args=rest[1].substring(0,rest[1].length()-1).split(",");
+		String[] args=parts[1].substring(0,parts[1].length()-1).split(",");
 		
 		//make function object
 		functions.add(new U_Function(name,new ArrayList<String>(Arrays.asList(args)),lines));
@@ -548,6 +555,8 @@ public class U_Program {
 
 
 	private U_Variable get_variable(String name){
+		name=remove_whitespace(name);
+		
 		for(U_Variable var:variables){
 			if(var.identifier.equals(name)){
 				return var;
@@ -570,6 +579,8 @@ public class U_Program {
 	}
 
 	public U_Function get_function(String name){
+		name=remove_whitespace(name);
+		
 		for(U_Function fun:functions){
 			if(fun.name.equals(name)){
 				return fun;
@@ -577,7 +588,12 @@ public class U_Program {
 		}
 		return null;
 	}
-
-
-
+	
+	
+	
+	//to remove whitespace
+	protected String remove_whitespace(String s){
+		s=s.replaceAll("\\s+","");
+		return s;
+	}
 }

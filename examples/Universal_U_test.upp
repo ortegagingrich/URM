@@ -341,8 +341,8 @@ function univ_f(xin,yin)
 	return xv
 end
 
-int a,b,c
-par a,b
+int a,b, c
+par a , b
 #c=univ_f(a,b)
-c=prime?(a)
-return c
+c = 5
+return     c
