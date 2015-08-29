@@ -1,9 +1,7 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class U_Compiler {
 	
-	public static ArrayList<String> control_structures;
 	
 	public int cumline;
 	public int localenv;
@@ -12,10 +10,7 @@ public class U_Compiler {
 	private Memory_Manager mm;
 	
 	
-	public U_Compiler(){
-		String[] a={"for","while","if"};
-		control_structures=new ArrayList<String>(Arrays.asList(a));
-	}
+	public U_Compiler(){}
 	
 	public URM_Program compile(U_Program program){
 		//make URM program for eventual output
@@ -29,13 +24,6 @@ public class U_Compiler {
 		for(int i=0;i<program.variables.size();i++){
 			U_Variable var=program.variables.get(i);
 			var.index=mm.malloc();
-			/*
-			if(var.identifier.contains("tracker")){
-				var.index=9999;
-			}else{
-				var.index=200001+i;//experimental change
-			}
-			*/
 		}
 		
 		
@@ -107,7 +95,14 @@ public class U_Compiler {
 			ArrayList<U_Variable> inputs=((U_Call)command).inputs;
 			ArrayList<U_Variable> args=((U_Call)command).arguments;
 			for(int i=0;i<inputs.size();i++){
-				p.add_command("T",inputs.get(i).index,args.get(i).index);
+				try{
+					p.add_command("T",inputs.get(i).index,args.get(i).index);
+				}catch(NullPointerException ex){
+					ex.printStackTrace();
+					System.out.println(args);
+					System.out.println(((U_Call)command).block.commands.toString());
+					throw ex;
+				}
 				cumline++;
 			}
 			//next read in main block

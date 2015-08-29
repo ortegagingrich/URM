@@ -11,7 +11,7 @@ public class U_Program {
 	public BufferedReader in;
 	
 	//number of input (determined by the total number of parameters listed in par command)
-	public int nargin;
+	public int nargin=1;
 	
 	
 
@@ -36,7 +36,14 @@ public class U_Program {
 				if(line==null){
 					break;
 				}
-				parse_line(line,in);
+				try{
+					parse_line(line,in);
+				}catch(Exception ex){
+					ex.printStackTrace();
+					System.out.println(line);
+					System.out.println(line.substring(0,7));
+					System.exit(0);
+				}
 			}
 			in.close();
 		}catch(Exception ex){ex.printStackTrace();}
@@ -65,43 +72,60 @@ public class U_Program {
 		while(line.charAt(line.length()-1)==' '||line.charAt(line.length()-1)=='\t'){
 			line=line.substring(0,line.length()-1);
 		}
-
-
-		//check for variable initialization:
-		if(line.contains("int ")){
-			initiate_variable(line);
-		}
-		//check for parameter read in:
-		if(line.contains("par ")){
-			read_parameters(line);
-		}
+		
+		/*
+		 * At this point, the leading whitespace has been eliminated so if there is a keyword at the start of
+		 * the line, it should be be at the first position.
+		 */
+		
 		//checks for succession
 		if(line.contains("++")){
 			succeed_variable(line);
+			return;
 		}
 		//check for assignment
-		if(line.contains("=")&&!line.contains("if")&&!line.contains("while")){
+		if(line.contains("=")&&!contains_control_structure(line)){
 			assign_variable(line);
+			return;
+		}
+		//check if string is short, for some reason
+		if(line.length()<4||line.equals("else")){
+			return;
+		}
+		//check for variable initialization:
+		if(line.substring(0,4).equals("int ")){
+			initiate_variable(line);
+			return;
+		}
+		//check for parameter read in:
+		if(line.substring(0,4).equals("par ")){
+			read_parameters(line);
+			return;
 		}
 		//check for return
-		if(line.contains("return")){
+		if(line.substring(0,7).equals("return ")){
 			return_variable(line);
+			return;
 		}
 		//check for for structure
-		if(line.contains("for")){
+		if(line.substring(0,4).equals("for ")){
 			make_for(line);
+			return;
 		}
 		//check for if structure
-		if(line.contains("if")){
+		if(line.substring(0,3).equals("if(")){
 			make_if(line);
+			return;
 		}
 		//check for while structures
-		if(line.contains("while")){
+		if(line.substring(0,6).equals("while(")){
 			make_while(line);
+			return;
 		}
 		//check for function definitions
-		if(line.contains("function")){
+		if(line.substring(0,9).equals("function ")){
 			make_function(line);
+			return;
 		}
 	}
 
@@ -156,15 +180,16 @@ public class U_Program {
 			//if parsing the integer fails, clearly this is not a type 1 operation
 			String name2=line.split("=")[1];
 			
-			//try for Type 2: set one variable's value to anothers
-			U_Variable var2=get_variable(name2);
-
-			if(var2!=null){
-				commands.add(new U_Assignment(var2,var1));
-			}else{
-				//Type 3: means that it is a function call
+			//if the name contains parentheses, it must be a Type 2: function call
+			if(name2.contains("(")&&name2.contains(")")){
+				//type 2
 				call_function(line);
+			}else{
+				//otherwise: type 3: set one variable's value to another's
+				U_Variable var2=get_variable(name2);
+				commands.add(new U_Assignment(var2,var1));
 			}
+			
 		}
 	}
 
@@ -173,14 +198,6 @@ public class U_Program {
 		String name=line.split("\\(")[0].split("=")[1];
 		U_Function function=get_function(name);
 		
-		//next make appropriate global variables
-		/*ArrayList<U_Variable> locals=new ArrayList<U_Variable>();
-		for(U_Variable var:function.arguments){
-			String newname=function.name+"%"+function.instances+"%"+var.identifier;
-			U_Variable newvar=new U_Variable(newname);
-			variables.add(newvar);
-			locals.add(newvar);
-		}*/
 		
 		//get inputs
 		String[] args=line.split("\\(")[1].substring(0,line.split("\\(")[1].length()-1).split(",");
@@ -197,6 +214,29 @@ public class U_Program {
 
 		commands.add(new U_Call(block,inputs,output,function.arguments));
 	}
+	
+	//method to check if a line contains a control structure definition (i.e. depth should be increased by one)
+	protected boolean contains_control_structure(String line){
+		//if line is too short, it cannot contain such a structure
+		if(line.length()<6){
+			return false;
+		}
+		//check for for structure
+		if(line.substring(0,4).equals("for ")){
+			return true;
+		}
+		//check for if structure
+		if(line.substring(0,3).equals("if(")){
+			return true;
+		}
+		//check for while structures
+		if(line.substring(0,6).equals("while(")){
+			return true;
+		}
+		//otherwise, no control structures
+		return false;
+	}
+	
 
 	public void make_for(String line){
 		//first, read all lines inside of the loop structure (will turn this into a block)
@@ -204,19 +244,38 @@ public class U_Program {
 		int depth=1;
 		try{while(depth>0){
 			String newline=in.readLine();
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
 			if(depth>0){
 				lines.add(newline);
 			}
 			//check end
-		}}catch(Exception e){}
+		}}catch(Exception e){e.printStackTrace();System.exit(0);}
 		
 		//note: at this point lines contains all of the lines for the block inside the for loop
 		
@@ -241,12 +300,31 @@ public class U_Program {
 		int depth=1;
 		try{while(depth>0){
 			String newline=in.readLine();
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
 			if(depth>0){
@@ -276,15 +354,34 @@ public class U_Program {
 		boolean include_else=false;
 		try{while(depth>0){
 			String newline=in.readLine();
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
-			if(newline.contains("else")&&depth==1){
+			if(newline.equals("else")&&depth==1){
 				depth=0;
 				include_else=true;
 			}
@@ -302,12 +399,31 @@ public class U_Program {
 			depth=1;
 			try{while(depth>0){
 				String newline=in.readLine();
-				for(String s:U_Compiler.control_structures){
-					if(newline.contains(s)){
-						depth++;
+				
+				
+				//remove leading and trailing whitespace
+				//get rid of leading whitespace
+				while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+					newline=newline.substring(1);
+				}
+				//check for a comment
+				if(newline.contains("#")){
+					int comment_start=newline.indexOf("#");
+					newline=newline.substring(0,comment_start);
+				}
+				//get rid of trailing whitespace
+				if(newline.length()!=0){
+					//get rid of trailing whitespace
+					while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+						newline=newline.substring(0,newline.length()-1);
 					}
 				}
-				if(newline.contains("end")){
+				
+				
+				if(contains_control_structure(newline)){
+					depth++;
+				}
+				if(newline.equals("end")){
 					depth--;
 				}
 				if(depth>0){
@@ -387,12 +503,31 @@ public class U_Program {
 		int depth=1;
 		try{while(depth>0){
 			String newline=in.readLine();
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
 			if(depth>0){
@@ -412,11 +547,24 @@ public class U_Program {
 	}
 
 
-	public U_Variable get_variable(String name){
+	private U_Variable get_variable(String name){
 		for(U_Variable var:variables){
 			if(var.identifier.equals(name)){
 				return var;
 			}
+		}
+		System.out.println("Failed to retrieve variable: "+name);
+		System.out.println("Current variables: ");
+		for(U_Variable var:variables){
+			System.out.println("    "+var.identifier);
+		}
+		if(this instanceof U_Block){
+			System.out.println("Local Variables:");
+			for(U_Variable var:((U_Block)this).local_variables){
+				System.out.println("    "+var.identifier);
+			}
+			System.out.println("Block structure:");
+			System.out.println(((U_Block)this).structure);
 		}
 		return null;
 	}

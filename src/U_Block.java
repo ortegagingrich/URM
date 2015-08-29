@@ -39,11 +39,21 @@ public class U_Block extends U_Program {
 		for(U_Variable var:local_variables){
 			variables.add(var);
 		}
-
+		
 		//parse lines
 		index=0;
 		while(index<lines.size()){
-			parse_line(lines.get(index),lines);
+			String line=lines.get(index);
+			
+			
+			try{
+				parse_line(line,lines);
+			}catch(Exception ex){
+				ex.printStackTrace();
+				System.out.println(line);
+				System.out.println(line.substring(0,7));
+				System.exit(0);
+			}
 			index++;
 		}
 
@@ -72,35 +82,51 @@ public class U_Block extends U_Program {
 		while(line.charAt(line.length()-1)==' '||line.charAt(line.length()-1)=='\t'){
 			line=line.substring(0,line.length()-1);
 		}
-
-
-		//check for variable initialization:
-		if(line.contains("int ")){
-			initiate_variable(line);
-		}
+		
+		/*
+		 * At this point, the leading whitespace has been eliminated so if there is a keyword at the start of
+		 * the line, it should be be at the first position.
+		 */
+		
+		
 		//checks for succession
 		if(line.contains("++")){
 			succeed_variable(line);
+			return;
 		}
 		//check for assignment
-		if(line.contains("=")&&!line.contains("if")&&!line.contains("while")){
+		if(line.contains("=")&&!contains_control_structure(line)){
 			assign_variable(line);
+			return;
+		}
+		//check if string is short, for some reason
+		if(line.length()<4){
+			return;
+		}
+		//check for variable initialization:
+		if(line.substring(0,4).equals("int ")){
+			initiate_variable(line);
+			return;
 		}
 		//check for return
-		if(line.contains("return")){
+		if(line.substring(0,7).equals("return ")){
 			return_variable(line);
+			return;
 		}
 		//check for for structure
-		if(line.contains("for")){
+		if(line.substring(0,4).equals("for ")){
 			make_for(line,lines);
-		}
-		//check for while structure
-		if(line.contains("while")){
-			make_while(line,lines);
+			return;
 		}
 		//check for if structure
-		if(line.contains("if")){
+		if(line.substring(0,3).equals("if(")){
 			make_if(line,lines);
+			return;
+		}
+		//check for while structures
+		if(line.substring(0,6).equals("while(")){
+			make_while(line,lines);
+			return;
 		}
 	}
 
@@ -113,6 +139,35 @@ public class U_Block extends U_Program {
 			variables.add(newvar);
 		}
 	}
+	
+	
+	//any operation which sets a variable value
+	public void assign_variable(String line){
+		String name1=line.split("=")[0];
+		U_Variable var1=get_variable(name1);
+
+		//There are three possible types of operations
+		try{
+			//Type 1: Set variable as a constant integer
+			int t=Integer.parseInt(line.split("=")[1]);
+			commands.add(new U_Set(t,var1));
+
+		}catch(Exception ex){
+			//if parsing the integer fails, clearly this is not a type 1 operation
+			String name2=line.split("=")[1];
+
+			//if the name contains parentheses, it must be a Type 2: function call
+			if(name2.contains("(")&&name2.contains(")")){
+				//type 2
+				call_function(line);
+			}else{
+				//otherwise: type 3: set one variable's value to another's
+				U_Variable var2=get_variable(name2);
+				commands.add(new U_Assignment(var2,var1));
+			}
+		}
+	}
+	
 
 	//saves variables to parent
 	public void call_function(String line){
@@ -153,13 +208,32 @@ public class U_Block extends U_Program {
 		ArrayList<Integer> toremove=new ArrayList<Integer>();
 		try{while(depth>0){
 			String newline=biglines.get(forindex);
-			toremove.add(forindex);
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			
+			toremove.add(forindex);
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
 			if(depth>0){
@@ -174,6 +248,10 @@ public class U_Block extends U_Program {
 				biglines.remove(i);
 			}
 		}
+		
+		
+		
+		
 		//note: at this point lines contains all of the lines for the block inside the for loop
 		//next split the line by commas
 		String[] parts=line.substring(4).split(",");
@@ -193,16 +271,33 @@ public class U_Block extends U_Program {
 		try{while(depth>0){
 			String newline=biglines.get(forindex);
 			toremove.add(forindex);
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
-				depth--;
+			
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
 			}
-			if(newline.contains("else")&&depth==1){
-				depth=0;
+			if(newline.equals("end")){
+				depth--;
 			}
 			if(depth>0){
 				lines1.add(newline);
@@ -238,15 +333,35 @@ public class U_Block extends U_Program {
 		try{while(depth>0){
 			String newline=biglines.get(forindex);
 			toremove.add(forindex);
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
-			if(newline.contains("else")&&depth==1){
+			if(newline.equals("else")&&depth==1){
 				depth=0;
 			}
 			if(depth>0){
@@ -254,7 +369,13 @@ public class U_Block extends U_Program {
 			}
 			//increase index
 			forindex++;
-		}}catch(Exception e){e.printStackTrace();System.out.println(biglines.toString());System.exit(0);}
+		}}catch(Exception e){
+			e.printStackTrace();
+			System.out.println(biglines.toString());
+			System.out.println("depth:");
+			System.out.println(depth);
+			System.exit(0);
+			}
 		//remove unwanted elements of biglines
 		for(int i=biglines.size()-1;i>-1;i--){
 			if(toremove.contains(i)){
@@ -269,12 +390,32 @@ public class U_Block extends U_Program {
 		try{while(depth>0){
 			String newline=biglines.get(forindex);
 			toremove.add(forindex);
-			for(String s:U_Compiler.control_structures){
-				if(newline.contains(s)){
-					depth++;
+			
+			
+			//remove leading and trailing whitespace
+			//get rid of leading whitespace
+			while(newline.charAt(0)==' '||newline.charAt(0)=='\t'){
+				newline=newline.substring(1);
+			}
+			//check for a comment
+			if(newline.contains("#")){
+				int comment_start=newline.indexOf("#");
+				newline=newline.substring(0,comment_start);
+			}
+			//get rid of trailing whitespace
+			if(newline.length()!=0){
+				//get rid of trailing whitespace
+				while(newline.charAt(newline.length()-1)==' '||newline.charAt(newline.length()-1)=='\t'){
+					newline=newline.substring(0,newline.length()-1);
 				}
 			}
-			if(newline.contains("end")){
+			
+			
+			
+			if(contains_control_structure(newline)){
+				depth++;
+			}
+			if(newline.equals("end")){
 				depth--;
 			}
 			if(depth>0){
@@ -353,21 +494,29 @@ public class U_Block extends U_Program {
 			commands.add(new U_Iflesseq(v2,v1,lines1,lines2,this));
 		}
 	}
-
-	public U_Variable get_variable(String name){
+	
+	private U_Variable get_variable(String name){
 		for(U_Variable var:variables){
 			if(var.identifier.equals(name)){
 				return var;
 			}
 		}
-		for(U_Variable var:parent.variables){
-			if(var.identifier.equals(name)){
-				return var;
+		System.out.println("Failed to retrieve variable: "+name);
+		System.out.println("Current variables: ");
+		for(U_Variable var:variables){
+			System.out.println("    "+var.identifier);
+		}
+		if(this instanceof U_Block){
+			System.out.println("Local Variables:");
+			for(U_Variable var:((U_Block)this).local_variables){
+				System.out.println("    "+var.identifier);
 			}
+			System.out.println("Block structure:");
+			System.out.println(((U_Block)this).structure);
 		}
 		return null;
 	}
-
+	
 	//other methods are basically identical
 
 }
