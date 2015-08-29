@@ -89,15 +89,19 @@ public class U_Compiler {
 		}
 		//good luck
 		if(command instanceof U_Call){
-			//first take care of the local variables
+			//first allocate registers for the local variables
 			U_Block block=((U_Call)command).block;
-			block.local_index=15000+(100*localenv);//test change
+			for(U_Variable var:block.local_variables){
+				var.index=mm.malloc();
+			}
+			
+			/*block.local_index=15000+(100*localenv);//test change
 			localenv++;
 			int istupid=0;
 			for(U_Variable var:block.local_variables){
 				var.index=block.local_index+istupid;
 				istupid++;
-			}
+			}*/
 			
 			//first transfer in inputs
 			ArrayList<U_Variable> inputs=((U_Call)command).inputs;
@@ -110,20 +114,22 @@ public class U_Compiler {
 			for(U_Command com:block.commands){
 				add_code(com,p);
 			}
+			
+			//release local variables back to the system
+			for(U_Variable var:block.local_variables){
+				mm.free(var.index);
+			}
 		}
+		
 		if(command instanceof U_For){
 			//first take care of the local variables
 			U_Block block=((U_For)command).block;
-			block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			int i=0;
 			for(U_Variable var:block.local_variables){
-				var.index=block.local_index+i;
-				i++;
+				var.index=mm.malloc();
 			}
 			
 			//now that locals are assigned, get relevant globals
-			i=((U_For)command).forindex.index;
+			int i=((U_For)command).forindex.index;
 			int l=((U_For)command).lower.index;
 			int u=((U_For)command).upper.index;
 			
@@ -142,18 +148,16 @@ public class U_Compiler {
 			p.add_command("J",1,1,n+1);
 			cumline+=2;
 			
-			//TODO: Release local variables back to the system
-			
+			//release local variables back to the system
+			for(U_Variable var:block.local_variables){
+				mm.free(var.index);
+			}
 		}
 		if(command instanceof U_While){
 			//first allocate registers for local variables
 			U_Block block=((U_While)command).block;
-			block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			int i=0;
 			for(U_Variable var:block.local_variables){
-				var.index=block.local_index+i;
-				i++;
+				var.index=mm.malloc();
 			}
 			
 			//preamble
@@ -172,29 +176,20 @@ public class U_Compiler {
 			p.finalize_jump(m,n+1);
 			p.add_command("J",1,1,m);
 			cumline++;
+			
+			//release local variables back to the system
+			for(U_Variable var:block.local_variables){
+				mm.free(var.index);
+			}
 		}
 		
 		if(command instanceof U_If){
-			//first allocate registers for local variables
+			//first allocate registers for main block local variables
 			//main block
 			U_Block main_block=((U_If)command).main_block;
-			main_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			int i=0;
 			for(U_Variable var:main_block.local_variables){
-				var.index=main_block.local_index+i;
-				i++;
+				var.index=mm.malloc();
 			}
-			//else block
-			U_Block else_block=((U_If)command).else_block;
-			else_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			i=0;
-			for(U_Variable var:else_block.local_variables){
-				var.index=else_block.local_index+i;
-				i++;
-			}
-			
 			
 			//preamble
 			int left=((U_If)command).left.index;
@@ -212,32 +207,37 @@ public class U_Compiler {
 			p.finalize_jump(n+1,m+1);
 			p.add_jump_tentative(1,1);
 			cumline++;
+			
+			//release main block variables
+			for(U_Variable var: main_block.local_variables){
+				mm.free(var.index);
+			}
+			
+			
+			//allocate else block local variables
+			U_Block else_block=((U_If)command).else_block;
+			for(U_Variable var:else_block.local_variables){
+				var.index=mm.malloc();
+			}
+			
 			//add else block
 			for(U_Command com:else_block.commands){
 				add_code(com,p);
 			}
 			int k=cumline;
 			p.finalize_jump(m,k);
+			
+			//free else block local variables
+			for(U_Variable var:else_block.local_variables){
+				mm.free(var.index);
+			}
 		}
 		if(command instanceof U_Ifless){
-			//first allocate registers for local variables
+			//first allocate registers for main block local variables
 			//main block
 			U_Block main_block=((U_Ifless)command).main_block;
-			main_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			int i=0;
 			for(U_Variable var:main_block.local_variables){
-				var.index=main_block.local_index+i;
-				i++;
-			}
-			//else block
-			U_Block else_block=((U_Ifless)command).else_block;
-			else_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			i=0;
-			for(U_Variable var:else_block.local_variables){
-				var.index=else_block.local_index+i;
-				i++;
+				var.index=mm.malloc();
 			}
 			
 			//preamble
@@ -271,32 +271,37 @@ public class U_Compiler {
 			p.finalize_jump(n+2,m+1);
 			p.add_jump_tentative(1,1);
 			cumline++;
+			
+			//release main block variables
+			for(U_Variable var: main_block.local_variables){
+				mm.free(var.index);
+			}
+			
+			
+			//allocate else block local variables
+			U_Block else_block=((U_Ifless)command).else_block;
+			for(U_Variable var:else_block.local_variables){
+				var.index=mm.malloc();
+			}
+			
 			//add else block
 			for(U_Command com:else_block.commands){
 				add_code(com,p);
 			}
 			int k=cumline;
 			p.finalize_jump(m,k);
+			
+			//free else block local variables
+			for(U_Variable var:else_block.local_variables){
+				mm.free(var.index);
+			}
 		}
 		if(command instanceof U_Iflesseq){
-			//first allocate registers for local variables
+			//first allocate registers for main block local variables
 			//main block
 			U_Block main_block=((U_Iflesseq)command).main_block;
-			main_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			int i=0;
 			for(U_Variable var:main_block.local_variables){
-				var.index=main_block.local_index+i;
-				i++;
-			}
-			//else block
-			U_Block else_block=((U_Iflesseq)command).else_block;
-			else_block.local_index=15000+(100*localenv);//test change
-			localenv++;
-			i=0;
-			for(U_Variable var:else_block.local_variables){
-				var.index=else_block.local_index+i;
-				i++;
+				var.index=mm.malloc();
 			}
 			
 			//preamble
@@ -330,12 +335,31 @@ public class U_Compiler {
 			p.add_jump_tentative(1,1);
 			cumline++;
 			
+			
+			//release main block variables
+			for(U_Variable var: main_block.local_variables){
+				mm.free(var.index);
+			}
+			
+			
+			//allocate else block local variables
+			U_Block else_block=((U_Iflesseq)command).else_block;
+			for(U_Variable var:else_block.local_variables){
+				var.index=mm.malloc();
+			}
+			
+			
 			//add else block
 			for(U_Command com:((U_Iflesseq)command).else_block.commands){
 				add_code(com,p);
 			}
 			int k=cumline;
 			p.finalize_jump(m,k);
+			
+			//free else block local variables
+			for(U_Variable var:else_block.local_variables){
+				mm.free(var.index);
+			}
 			
 		}
 	}

@@ -19,6 +19,7 @@ public class Memory_Manager {
 		if(released.size()>0){
 			int reg=released.get(0);
 			released.remove(0);
+			allocated.add(reg);
 			return reg;
 		}
 		
