@@ -72,7 +72,6 @@ function divides?(var1,var2)
 		prod=mult(i,var1)
 		if(prod==var2)
 			xv++
-		else
 		end
 	end
 	return xv
@@ -90,7 +89,6 @@ function prime?(var1)
 			check=divides?(i,var1)
 			if(check==one)
 				xv=0
-			else
 			end
 		end
 	end
@@ -110,11 +108,9 @@ function prime(var1)
 		ptest=prime?(iter)
 		if(ptest==one)
 			count++
-		else
 		end
 		if(count==var1)
 			mtest=1
-		else
 		end
 	end
 	return iter
@@ -190,11 +186,9 @@ function univ_r(win)
 	else
 		if(alphatest==zero)
 			xv=primepow(win,two)
-		else
 		end
 		if(alphatest==one)
 			xv=primepow(win,two)
-		else
 		end
 		if(alphatest==two)
 			numerator=primepow(win,two)
@@ -202,7 +196,6 @@ function univ_r(win)
 			curp=prime(curp)
 			numerator=mult(curp,numerator)
 			xv=numerator
-		else
 		end
 		if(alphatest==three)
 			numerator=primepow(win,two)
@@ -220,7 +213,6 @@ function univ_r(win)
 			curp=prime(curp)
 			curp=pow(curp,p1)
 			xv=mult(xv,curp)
-		else
 		end
 		if(alphatest==four)
 			numerator=primepow(win,two)
@@ -231,7 +223,6 @@ function univ_r(win)
 			p1=primepow(numerator,p2)
 			denominator=pow(denominator,p1)
 			xv=divide(numerator,denominator)
-		else
 		end
 	end
 	return xv
@@ -254,7 +245,6 @@ function univ_i(win)
 	else
 		if(alphatest==zero)
 			xv=0
-		else
 		end
 		if(alphatest==one)
 			alpha3=primepow(alphaw,three)
@@ -268,19 +258,15 @@ function univ_i(win)
 			else
 				xv=add(wtest,one)
 			end
-		else
 		end
 		if(alphatest==two)
 			xv=add(wtest,one)
-		else
 		end
 		if(alphatest==three)
 			xv=add(wtest,one)
-		else
 		end
 		if(alphatest==four)
 			xv=add(wtest,one)
-		else
 		end
 	end
 	return xv

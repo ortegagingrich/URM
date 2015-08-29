@@ -364,6 +364,10 @@ public class U_Block extends U_Program {
 			}
 			if(newline.equals("end")){
 				depth--;
+				//if depth is zero (i.e. no else block), don't remove this particular end
+				if(depth==0){
+					toremove.remove(Integer.valueOf(forindex));
+				}
 			}
 			if(newline.equals("else")&&depth==1){
 				depth=0;

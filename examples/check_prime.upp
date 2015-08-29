@@ -28,7 +28,6 @@ function divides?(var1,var2)
 		prod=mult(i,var1)
 		if(prod==var2)
 			xv++
-		else
 		end
 	end
 	return xv
@@ -47,7 +46,6 @@ function prime?(var1)
 			check=divides?(i,var1)
 			if(check==one)
 				xv=0
-			else
 			end
 		end
 	end
