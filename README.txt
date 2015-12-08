@@ -39,7 +39,7 @@ The following small example code computes the product of two input integers init
 ```
 
 Of course, it is impratical to write programs much larger than this, so typically proofs of the computability of certain functions (i.e. that 
-there exists a URM program that can compute it) is done by combining functions already known to be computable through substitution,
+there exists a URM program that can compute it) are done by combining functions already known to be computable through substitution,
 recursion and minimalization.  (These are computationally equivalent, respectively, to function calls, for loops and while loops, all of 
 which can be implemented systematically using only the four above commands.)  However, after seeing a proof of the existance of a 
 special program called a Universal URM program, which can compute any of the countably infinite set of possible URM programs,
